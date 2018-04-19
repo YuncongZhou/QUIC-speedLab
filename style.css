@@ -1,0 +1,23 @@
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 64px;
+}
+
+button {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 48px;
+    width: 16rem;
+    height: 4rem;
+    background: transparent;
+    border-color: black;
+    border-width: 2px;
+}
+
+button:disabled {
+    color: gray;
+    border-color: gray;
+}
+
+button:hover:enabled {
+    background-color: lightgray;
+}
