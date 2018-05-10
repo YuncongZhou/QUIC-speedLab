@@ -3,3 +3,4 @@ dummy
 .env
 tc command.info
 cs725.info
+*.pem

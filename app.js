@@ -1,3 +1,6 @@
+const http = require('http');
+const https = require('https');
+const fs = require("fs")
 const Koa = require('koa');
 const koaBody = require('koa-body');
 
@@ -30,18 +33,25 @@ app.use(koaBody({
 app.use(async function(ctx) {
   const body = ctx.request.body;
   if (!body.rate || !body.delay || !body.loss) ctx.throw(400, 'rate, delay and loss required');
-  let message = ''
-  const loss = parseFloat(body.loss)
-  if (loss !== NaN && loss !== 0){
-    message = `loss ${parseFloat(body.loss)}%`
-  }
+  const rate = parseFloat(body.rate)
   const delay = parseFloat(body.delay)
-  if(delay!== NaN && delay !== 0){
-    message = `delay ${parseFloat(body.delay)}ms ${message}`
+  const loss = parseFloat(body.loss)
+  let message = ''
+  if (rate === -1 && delay === -1 && loss === -1){
+    message = `sudo tc qdisc del dev enp4s0 root`
+  } else {
+    if (!isNaN(loss) && loss !== 0){
+      message = `loss ${parseFloat(body.loss)}%`
+    }
+
+    if(!isNaN(delay) && delay !== 0){
+      message = `delay ${parseFloat(body.delay)}ms ${message}`
+    }
+    if (message!==''){
+      message = `sudo tc qdisc add dev enp4s0 root netem ${message}`
+    }
   }
-  if (message!==''){
-    message = `sudo tc qdisc add dev enp4s0 root netem ${message}`
-  }
+
   // const message =`sudo tc qdisc add dev enp4s0 root delay ${parseFloat(body.delay)}ms loss ${parseFloat(body.loss)}%`
   console.log(message)
   exec(`${message}`, (err, stdout, stderr) => {
@@ -58,4 +68,13 @@ app.use(async function(ctx) {
   ctx.body = { message: message };
 });
 
-if (!module.parent) app.listen(54321);
+const options = {
+  key: fs.readFileSync('./key.pem'),
+  cert: fs.readFileSync('./certificate.pem')
+};
+
+if (!module.parent) {
+  // app.listen(54321);
+  http.createServer(app.callback()).listen(54321);
+  https.createServer(options,app.callback()).listen(54322);
+}
