@@ -47,7 +47,7 @@ app.use(async function(ctx) {
   exec(`${message}`, (err, stdout, stderr) => {
     if (err) {
       // node couldn't execute the command
-      console.log(`an error occur.${err.message}`)
+      console.error(`an error occur.\n${err.message}`)
       return;
     }
     // the *entire* and stderr (buffered)
