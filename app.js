@@ -3,8 +3,10 @@ const https = require('https');
 const fs = require("fs")
 const Koa = require('koa');
 const koaBody = require('koa-body');
+const cors = require('@koa/cors')
 
 const app = module.exports =  new Koa();
+app.use(cors())
 
 
 const { exec } = require('child_process');
@@ -69,8 +71,8 @@ app.use(async function(ctx) {
 });
 
 const options = {
-  key: fs.readFileSync('./key.pem'),
-  cert: fs.readFileSync('./certificate.pem')
+  key: fs.readFileSync('./signed/serverkey.pem'),
+  cert: fs.readFileSync('./signed/servercert.pem')
 };
 
 if (!module.parent) {
