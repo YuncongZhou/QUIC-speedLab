@@ -35,10 +35,18 @@ const resetNetwork = () => {
   setNetwork(-1,-1,-1)
 }
 
+const delay = (ms) =>{
+  return new Promise( (resolve, reject) => {
+      setTimeout(resolve, ms);
+  });
+}
+
 const start = async () => {
   document.getElementById('start').disabled = true
+  const data = []
   const speeds = []
   setNetwork(100,0,0)
+  await delay(100)
   for (let i = 0; i !== N; ++i) {
     const t1 = performance.now()
     const response = await fetch(PATH)
@@ -46,10 +54,18 @@ const start = async () => {
     const t2 = performance.now()
     const speed = blob.size / (125 * (t2 - t1))
     speeds.push(speed)
+    data.push([i,speed])
     setValue('current', i + 1)
     setValue('mean', mean(speeds))
     setValue('sem', sem(speeds))
   }
+  let csvContent = "data:text/csv;charset=utf-8,";
+  data.forEach(function(rowArray){
+    let row = rowArray.join(",");
+    csvContent += row + "\r\n";
+  });
+  var encodedUri = encodeURI(csvContent);
+  window.open(encodedUri);
   resetNetwork();
   document.getElementById('reset').disabled = false
 }
