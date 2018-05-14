@@ -1,16 +1,6 @@
-fs = require('fs')
-const readURL = ( loc ) => {
-  fs.readFile(loc, 'utf8', function (err,data) {
-    if (err) {
-      return console.log(err);
-    }
-    return data;
-  });
-}
-
 const N = 10
 const PATH = 'dummy'
-const url = readURL('./.env')
+const url = "https://10.4.0.1:54322"
 
 const sum = arr => arr.reduce((acc, cur) => acc + cur, 0)
 const mean = arr => sum(arr) / arr.length
@@ -48,7 +38,7 @@ const resetNetwork = () => {
 const start = async () => {
   document.getElementById('start').disabled = true
   const speeds = []
-  setNetwork(0,0,0)
+  setNetwork(100,0,0)
   for (let i = 0; i !== N; ++i) {
     const t1 = performance.now()
     const response = await fetch(PATH)
@@ -65,8 +55,8 @@ const start = async () => {
 }
 
 const init = () => {
-
-  console.log(url)
+  console.log(`connected to ${url}`)
+  resetNetwork()
   setValue('total', N)
   document.getElementById('start').addEventListener('click', start)
   document.getElementById('reset').addEventListener('click', reset)
