@@ -44,21 +44,34 @@ const delay = (ms) =>{
 const start = async () => {
   document.getElementById('start').disabled = true
   const data = []
-  const speeds = []
-  setNetwork(100,0,0)
-  await delay(100)
-  for (let i = 0; i !== N; ++i) {
-    const t1 = performance.now()
-    const response = await fetch(PATH)
-    const blob = await response.blob()
-    const t2 = performance.now()
-    const speed = blob.size / (125 * (t2 - t1))
-    speeds.push(speed)
-    data.push([i,speed])
-    setValue('current', i + 1)
-    setValue('mean', mean(speeds))
-    setValue('sem', sem(speeds))
+  const flag = "QUIC"
+  const rates = [10,100]
+  const delays = [0,1,5,10,25,75,150,200]
+  const losses = [0,0.1,0.5,1,4,10,15,20]
+  for (let r of rates){
+    for(let d of delays){
+      for(let l of losses){
+        setNetwork(r,d,l)
+        await delay(100)
+        const speeds = []
+        for (let i = 0; i !== N; ++i) {
+          const t1 = performance.now()
+          const response = await fetch(PATH)
+          const blob = await response.blob()
+          const t2 = performance.now()
+          const speed = 8* blob.size /  (t2 - t1)
+          speeds.push(speed)
+          setValue('current', i + 1)
+          setValue('mean', mean(speeds))
+          setValue('sem', sem(speeds))
+        }
+        resetNetwork();
+        data.push([flag,r,d,l,mean(speeds),sem(speeds)])
+      }
+    }
   }
+
+  // setNetwork(100,0,0)
   let csvContent = "data:text/csv;charset=utf-8,";
   data.forEach(function(rowArray){
     let row = rowArray.join(",");
@@ -66,7 +79,6 @@ const start = async () => {
   });
   var encodedUri = encodeURI(csvContent);
   window.open(encodedUri);
-  resetNetwork();
   document.getElementById('reset').disabled = false
 }
 
